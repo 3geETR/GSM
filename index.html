@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tenefüs Geri Sayım</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #ff8a00, #e52e71);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .countdown-section {
+            padding: 30px;
+        }
+
+        .status-container {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-header i {
+            font-size: 2rem;
+            margin-right: 15px;
+            color: #60a5fa;
+        }
+
+        .current-status {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #60a5fa;
+        }
+
+        .next-event {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .countdown-display {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .time-unit {
+            text-align: center;
+            background: rgba(15, 23, 42, 0.7);
+            border-radius: 12px;
+            padding: 20px 10px;
+            flex: 1;
+            min-width: 120px;
+            margin: 0 5px 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .time-value {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 10px 0;
+            color: #ff8a00;
+            text-shadow: 0 0 10px rgba(255, 138, 0, 0.5);
+        }
+
+        .time-label {
+            font-size: 1rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .schedule-section {
+            padding: 0 30px 30px;
+        }
+
+        .schedule-container {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .schedule-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .schedule-header i {
+            font-size: 1.8rem;
+            margin-right: 15px;
+            color: #34d399;
+        }
+
+        .schedule-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #34d399;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .schedule-table th {
+            text-align: left;
+            padding: 12px 15px;
+            background: rgba(15, 23, 42, 0.5);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .schedule-table td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .schedule-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .lesson-row {
+            background: rgba(30, 64, 175, 0.2);
+        }
+
+        .break-row {
+            background: rgba(21, 128, 61, 0.2);
+        }
+
+        .current-period {
+            position: relative;
+            box-shadow: 0 0 15px rgba(52, 211, 153, 0.5);
+            border: 1px solid #34d399;
+        }
+
+        .current-period::after {
+            content: "✓";
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #34d399;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .digital-clock {
+            font-size: 1.5rem;
+            letter-spacing: 3px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            color: #ff8a00;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.3);
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 10px;
+        }
+
+        .progress-container {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff8a00, #e52e71);
+            border-radius: 5px;
+            width: 0%;
+            transition: width 1s ease;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .time-unit {
+                min-width: calc(33.33% - 20px);
+            }
+            
+            .schedule-table {
+                font-size: 0.9rem;
+            }
+            
+            .schedule-table td, .schedule-table th {
+                padding: 10px 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .time-unit {
+                min-width: calc(50% - 20px);
+            }
+            
+            .schedule-table th:nth-child(4), 
+            .schedule-table td:nth-child(4),
+            .schedule-table th:nth-child(5), 
+            .schedule-table td:nth-child(5) {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-clock"></i> Tenefüs Geri Sayım</h1>
+            <p class="subtitle">Bir sonraki tenefüse kalan süreyi takip edin</p>
+            <div class="digital-clock" id="digitalClock">00:00:00</div>
+        </header>
+        
+        <div class="countdown-section">
+            <div class="status-container">
+                <div class="status-header">
+                    <i class="fas fa-school"></i>
+                    <div>
+                        <div class="current-status" id="currentStatus">Ders Devam Ediyor</div>
+                        <div class="next-event" id="nextEvent">Sonraki Tenefüs: 09:50</div>
+                    </div>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                
+                <div class="countdown-display">
+                    <div class="time-unit">
+                        <div class="time-label">Saat</div>
+                        <div class="time-value" id="hours">00</div>
+                    </div>
+                    <div class="time-unit">
+                        <div class="time-label">Dakika</div>
+                        <div class="time-value" id="minutes">00</div>
+                    </div>
+                    <div class="time-unit">
+                        <div class="time-label">Saniye</div>
+                        <div class="time-value" id="seconds">00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="schedule-section">
+            <div class="schedule-container">
+                <div class="schedule-header">
+                    <i class="fas fa-calendar-alt"></i>
+                    <div class="schedule-title">Ders Programı</div>
+                </div>
+                
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th>Ders</th>
+                            <th>Başlangıç</th>
+                            <th>Bitiş</th>
+                            <th>Süre</th>
+                            <th>Durum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="lesson-row" id="lesson1">
+                            <td>1. Ders</td>
+                            <td>09:00</td>
+                            <td>09:50</td>
+                            <td>50 dk</td>
+                            <td id="status1">-</td>
+                        </tr>
+                        <tr class="break-row">
+                            <td>1. Tenefüs</td>
+                            <td>09:50</td>
+                            <td>10:10</td>
+                            <td>20 dk</td>
+                            <td id="breakStatus1">-</td>
+                        </tr>
+                        <tr class="lesson-row" id="lesson2">
+                            <td>2. Ders</td>
+                            <td>10:10</td>
+                            <td>11:00</td>
+                            <td>50 dk</td>
+                            <td id="status2">-</td>
+                        </tr>
+                        <tr class="break-row">
+                            <td>2. Tenefüs</td>
+                            <td>11:00</td>
+                            <td>11:20</td>
+                            <td>20 dk</td>
+                            <td id="breakStatus2">-</td>
+                        </tr>
+                        <tr class="lesson-row" id="lesson3">
+                            <td>3. Ders</td>
+                            <td>11:20</td>
+                            <td>12:00</td>
+                            <td>40 dk</td>
+                            <td id="status3">-</td>
+                        </tr>
+                        <tr class="break-row">
+                            <td>3. Tenefüs</td>
+                            <td>12:00</td>
+                            <td>12:15</td>
+                            <td>15 dk</td>
+                            <td id="breakStatus3">-</td>
+                        </tr>
+                        <tr class="lesson-row" id="lesson4">
+                            <td>4. Ders</td>
+                            <td>12:15</td>
+                            <td>13:00</td>
+                            <td>45 dk</td>
+                            <td id="status4">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 Tenefüs Geri Sayım Uygulaması | Tüm hakları saklıdır</p>
+            <p>Ders saatleri: 09:00 - 13:00</p>
+        </footer>
+    </div>
+
+    <script>
+        // Ders ve tenefüs zamanları
+        const schedule = [
+            { type: 'ders', start: '09:00', end: '09:50', name: '1. Ders', id: 'lesson1', statusId: 'status1' },
+            { type: 'tenefüs', start: '09:50', end: '10:10', name: '1. Tenefüs', id: 'break1', statusId: 'breakStatus1' },
+            { type: 'ders', start: '10:10', end: '11:00', name: '2. Ders', id: 'lesson2', statusId: 'status2' },
+            { type: 'tenefüs', start: '11:00', end: '11:20', name: '2. Tenefüs', id: 'break2', statusId: 'breakStatus2' },
+            { type: 'ders', start: '11:20', end: '12:00', name: '3. Ders', id: 'lesson3', statusId: 'status3' },
+            { type: 'tenefüs', start: '12:00', end: '12:15', name: '3. Tenefüs', id: 'break3', statusId: 'breakStatus3' },
+            { type: 'ders', start: '12:15', end: '13:00', name: '4. Ders', id: 'lesson4', statusId: 'status4' }
+        ];
+
+        // Saat güncelleme
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('digitalClock').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        // Geri sayım hesaplama
+        function updateCountdown() {
+            const now = new Date();
+            const currentTime = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+            let nextEvent = null;
+            let currentEvent = null;
+            
+            // Mevcut ve bir sonraki olayları bul
+            for (const event of schedule) {
+                const startTime = timeToSeconds(event.start);
+                const endTime = timeToSeconds(event.end);
+                
+                if (currentTime >= startTime && currentTime < endTime) {
+                    currentEvent = event;
+                }
+                
+                if (currentTime < endTime && !nextEvent) {
+                    nextEvent = event;
+                }
+            }
+            
+            // Şu anki durumu güncelle
+            if (currentEvent) {
+                const endTime = timeToSeconds(currentEvent.end);
+                const timeLeft = endTime - currentTime;
+                
+                if (currentEvent.type === 'ders') {
+                    document.getElementById('currentStatus').textContent = `${currentEvent.name} Devam Ediyor`;
+                    document.getElementById('nextEvent').textContent = `Sonraki Tenefüs: ${formatTime(endTime)}`;
+                } else {
+                    document.getElementById('currentStatus').textContent = `${currentEvent.name} Devam Ediyor`;
+                    document.getElementById('nextEvent').textContent = `Sonraki Ders: ${formatTime(endTime)}`;
+                }
+                
+                // İlerleme çubuğunu güncelle
+                const totalDuration = timeToSeconds(currentEvent.end) - timeToSeconds(currentEvent.start);
+                const elapsed = totalDuration - timeLeft;
+                const progress = (elapsed / totalDuration) * 100;
+                document.getElementById('progressBar').style.width = `${progress}%`;
+                
+                // Geri sayımı güncelle
+                const hours = Math.floor(timeLeft / 3600);
+                const minutes = Math.floor((timeLeft % 3600) / 60);
+                const seconds = timeLeft % 60;
+                
+                document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+                document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+                document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+            } else {
+                if (currentTime < timeToSeconds(schedule[0].start)) {
+                    // Ders başlamadan önce
+                    const timeLeft = timeToSeconds(schedule[0].start) - currentTime;
+                    const hours = Math.floor(timeLeft / 3600);
+                    const minutes = Math.floor((timeLeft % 3600) / 60);
+                    const seconds = timeLeft % 60;
+                    
+                    document.getElementById('currentStatus').textContent = 'Ders Başlamadı';
+                    document.getElementById('nextEvent').textContent = `İlk Ders: ${schedule[0].start}`;
+                    document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+                    document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+                    document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+                    document.getElementById('progressBar').style.width = '0%';
+                } else {
+                    // Ders bittikten sonra
+                    document.getElementById('currentStatus').textContent = 'Dersler Bitti';
+                    document.getElementById('nextEvent').textContent = 'Yarın görüşmek üzere!';
+                    document.getElementById('hours').textContent = '00';
+                    document.getElementById('minutes').textContent = '00';
+                    document.getElementById('seconds').textContent = '00';
+                    document.getElementById('progressBar').style.width = '100%';
+                }
+            }
+            
+            // Mevcut dersi vurgula ve durumu güncelle
+            updateScheduleStatus(currentTime);
+        }
+
+        // Saat formatını saniyeye çevirme
+        function timeToSeconds(timeStr) {
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return hours * 3600 + minutes * 60;
+        }
+
+        // Saniyeyi saat formatına çevirme
+        function formatTime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        }
+
+        // Ders durumlarını güncelle
+        function updateScheduleStatus(currentTime) {
+            // Tüm durumları sıfırla
+            schedule.forEach(event => {
+                const element = document.getElementById(event.statusId);
+                if (element) {
+                    element.textContent = "-";
+                    element.style.color = "";
+                }
+            });
+            
+            // Geçmiş ve gelecek dersleri işaretle
+            for (const event of schedule) {
+                const startTime = timeToSeconds(event.start);
+                const endTime = timeToSeconds(event.end);
+                const element = document.getElementById(event.statusId);
+                
+                if (!element) continue;
+                
+                if (currentTime > endTime) {
+                    element.textContent = "✓ Tamamlandı";
+                    element.style.color = "#34d399";
+                } else if (currentTime >= startTime && currentTime < endTime) {
+                    element.textContent = "⏳ Devam Ediyor";
+                    element.style.color = "#ff8a00";
+                } else if (currentTime < startTime) {
+                    element.textContent = "⌛ Bekliyor";
+                    element.style.color = "#60a5fa";
+                }
+            }
+            
+            // Mevcut dersi vurgula
+            highlightCurrentLesson(currentTime);
+        }
+
+        // Şu anki dersi vurgula
+        function highlightCurrentLesson(currentTime) {
+            // Önceki vurgulamaları kaldır
+            for (let i = 1; i <= 4; i++) {
+                const row = document.getElementById(`lesson${i}`);
+                if (row) row.classList.remove('current-period');
+            }
+            
+            // Şu anki dersi bul
+            for (const event of schedule) {
+                const startTime = timeToSeconds(event.start);
+                const endTime = timeToSeconds(event.end);
+                
+                if (currentTime >= startTime && currentTime < endTime && event.type === 'ders') {
+                    const row = document.getElementById(event.id);
+                    if (row) row.classList.add('current-period');
+                    break;
+                }
+            }
+        }
+
+        // İlk güncellemeyi yap ve saniyede bir güncelle
+        updateClock();
+        updateCountdown();
+        setInterval(updateClock, 1000);
+        setInterval(updateCountdown, 1000);
+    </script>
+</body>
+</html>
